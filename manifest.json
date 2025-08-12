@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "MonkeyType Tracker",
+  "version": "1.0",
+
+  "description": "Helps reach daily MonkeyType typing goals",
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.monkeytype.com/*"],
+      "js": ["mt-tracker.js"]
+    }
+  ]
+}
