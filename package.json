@@ -1,0 +1,10 @@
+{
+	"name": "mt-tracker",
+	"private": true,
+	"devDependencies": {
+		"@types/firefox-webext-browser": "^120.0.4"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
+}
