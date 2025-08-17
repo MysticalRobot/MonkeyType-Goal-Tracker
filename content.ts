@@ -9,3 +9,15 @@
 // background script: limit total monkeytype api requests to 30. get test activity for the last 372 days and grab as many results as possible. compute the time spent typing for each day, store it, and then compute the longest streak that satisfies the users goal. if the streak has yet to end, keep it as the current one as well. store the data for the last day separately but throw it into the pile with the rest of the data at midnight (via alarm). send computation back to the popup to display. 
 // popup script: skeleton ui while waiting for background script streak computation, display historical best streak and current streak with goal. 
 // content script: add an event listener to somehow detect when a user is typing. when a test completes, send the data over to the background script for the corresponding day. also, steal the theme that the use is using for the icon and update the icon. Then, add event listeners to the theme buttons change the icon theme whenever the user changes their mt theme.
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('loaded');
+  const wordsInput = document.getElementById('wordsInput');
+  if (wordsInput === null) return;
+  let start: number | undefined = undefined;
+  wordsInput.addEventListener('focusin', () => { start = Date.now(); });
+  wordsInput.addEventListener('focusout', () => {
+    const end = Date.now();
+    if (start === undefined) return;
+    console.log((end - start) / 1000);
+  });
+})
