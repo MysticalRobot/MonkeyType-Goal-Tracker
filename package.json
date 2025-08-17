@@ -1,6 +1,9 @@
 {
 	"name": "mt-tracker",
 	"private": true,
+  "scripts": {
+    "dev": "web-ext lint && tsc content.ts background.ts popup/popup.ts"
+  },
 	"devDependencies": {
 		"@types/firefox-webext-browser": "^120.0.4"
 	},
