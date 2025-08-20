@@ -1,13 +1,14 @@
 {
 	"name": "mt-tracker",
-	"private": true,
-  "scripts": {
-    "dev": "web-ext lint && tsc content.ts background.ts popup/popup.ts"
-  },
 	"devDependencies": {
 		"@types/firefox-webext-browser": "^120.0.4"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
+	},
+	"private": true,
+	"scripts": {
+		"skibidi": "tsc count-typing.ts update-icon.ts init-extension.ts handle-messages.ts popup.ts --outDir compiled",
+		"toilet": "web-ext lint && web-ext run --firefox-binary /Applications/LibreWolf.app/Contents/MacOS/librewolf"
 	}
 }
