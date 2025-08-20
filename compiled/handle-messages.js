@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -49,6 +50,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+var icon_svg_1 = require("./icon.svg");
 var UpdateIconError = /** @class */ (function (_super) {
     __extends(UpdateIconError, _super);
     function UpdateIconError(message, query) {
@@ -58,16 +61,14 @@ var UpdateIconError = /** @class */ (function (_super) {
     }
     return UpdateIconError;
 }(Error));
-var mainColorPlaceholder = 'e2b714';
-var backgroundColorPlaceholder = '323437';
-browser.runtime.onMessage.addListener(handleMessages);
-function handleMessages(request) {
+function updateIcon(request) {
     return __awaiter(this, void 0, void 0, function () {
-        var query1, query2, colorAPIRequest1, colorAPIRequest2, response1, response2, mainColorValues, backgroundColorValues, mainColor, backgroundColor, modifedSVG, iconDataURI, error_1;
+        var mainColorPlaceholder, backgroundColorPlaceholder, query1, query2, colorAPIRequest1, colorAPIRequest2, response1, response2, mainColorValues, backgroundColorValues, mainColor, backgroundColor, modifedIcon, iconDataURI, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(request.action === 'updateIcon')) return [3 /*break*/, 8];
+                    mainColorPlaceholder = 'e2b714';
+                    backgroundColorPlaceholder = '323437';
                     console.log('recieved UpdateIconRequest, fetching hex colors');
                     query1 = "/id?rgb=".concat(request.mainColor);
                     query2 = "/id?rgb=".concat(request.backgroundColor);
@@ -103,11 +104,11 @@ function handleMessages(request) {
                     mainColor = mainColorValues.hex.clean;
                     backgroundColor = backgroundColorValues.hex.clean;
                     console.log('fetched', mainColor, backgroundColor);
-                    modifedSVG = svg
+                    modifedIcon = icon_svg_1.default
                         .split(mainColorPlaceholder).join(mainColor)
                         .split(backgroundColorPlaceholder).join(backgroundColor);
-                    iconDataURI = "data:image/svg+xml;base64,".concat(window.btoa(modifedSVG));
-                    console.log('created modifedSVG iconDataURI', iconDataURI);
+                    iconDataURI = "data:image/svg+xml;base64,".concat(window.btoa(modifedIcon));
+                    console.log('created iconDataURI', iconDataURI);
                     browser.action.setIcon({ path: iconDataURI });
                     return [3 /*break*/, 7];
                 case 6:
@@ -119,9 +120,17 @@ function handleMessages(request) {
                         return [2 /*return*/, new UpdateIconError(error_1.message, 'n/a')];
                     }
                     return [3 /*break*/, 7];
-                case 7: return [3 /*break*/, 8];
-                case 8: return [2 /*return*/];
+                case 7: return [2 /*return*/];
             }
         });
     });
 }
+function handleMessages(request) {
+    if (request.action === 'updateIcon') {
+        updateIcon(request);
+    }
+    else {
+        // handle other actions here
+    }
+}
+browser.runtime.onMessage.addListener(handleMessages);

@@ -8,7 +8,7 @@
 	},
 	"private": true,
 	"scripts": {
-		"skibidi": "tsc count-typing.ts update-icon.ts init-extension.ts handle-messages.ts popup.ts --outDir compiled",
+		"skibidi": "tsc",
 		"toilet": "web-ext lint && web-ext run --firefox-binary /Applications/LibreWolf.app/Contents/MacOS/librewolf"
 	}
 }
