@@ -1,46 +1,44 @@
-{
-	"manifest_version": 3,
-	"name": "MonkeyType Goal Tracker",
-	"version": "1.0",
-	"description": "A tool that helps reach daily MonkeyType typing goals and tracks goal achievement streaks.",
-	"homepage_url": "https://github.com/mysticalrobot/monkeytype-goal-tracker",
-	"browser_specific_settings": {
-		"gecko": {
-			"id": "{f3c0eabd-523c-4704-8601-9ac925c8613c}"
-		}
-	},
-	"icons": {
-		"16": "icon.svg",
-		"32": "icon.svg",
-		"48": "icon.svg",
-		"64": "icon.svg",
-		"96": "icon.svg",
-		"128": "icon.svg",
-		"256": "icon.svg"
-	},
-	"action": {
-		"default_icon": "icon.svg",
-		"default_title": "MonkeyType Goal Tracker",
-		"default_popup": "popup.html"
-	},
-	"web_accessible_resources": [
+
+  "manifest_version": 3,
+  "name": "MonkeyType Goal Tracker",
+  "version": "1.0",
+  "description": "A tool that helps reach daily MonkeyType typing goals and tracks goal achievement streaks.",
+  "homepage_url": "https://github.com/mysticalrobot/monkeytype-goal-tracker",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{f3c0eabd-523c-4704-8601-9ac925c8613c}"
+    }
+  },
+  "icons": {
+    "48": "icon.svg"
+  },
+  "action": {
+    "default_icon": "icon.svg",
+    "default_title": "MonkeyType Goal Tracker",
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": [
     {
-      "resources": ["icon.svg"],
+      "resources": [],
       "extension_ids": []
     }
   ],
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["compiled/handle-messages.js", "compiled/init-extension.js"]
   },
-	"content_scripts": [
-		{
-			"matches": ["*://*.monkeytype.com/"],
-			"js": ["content.js"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.monkeytype.com/"],
+      "js": ["compiled/count-typing.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["*://*.monkeytype.com/*"],
+      "js": ["compiled/update-icon.js"],
       "run_at": "document_start"
-		}
+    }
 	],
 	"permissions": [
-    "activeTab",
 		"storage"
 	]
 }
