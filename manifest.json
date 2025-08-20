@@ -1,4 +1,4 @@
-
+{
   "manifest_version": 3,
   "name": "MonkeyType Goal Tracker",
   "version": "1.0",
@@ -19,7 +19,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": [],
+      "resources": ["icon.svg"],
       "extension_ids": []
     }
   ],
