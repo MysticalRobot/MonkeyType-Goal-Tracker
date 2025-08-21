@@ -19,12 +19,13 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["icon.svg"],
+      "resources": [],
       "extension_ids": []
     }
   ],
   "background": {
-    "scripts": ["compiled/handle-messages.js", "compiled/init-extension.js"]
+    "scripts": ["compiled/handle-messages.js", "compiled/init-extension.js"],
+    "type": "module"
   },
   "content_scripts": [
     {

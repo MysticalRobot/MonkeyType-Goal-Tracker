@@ -1,2 +1,2 @@
-browser.runtime.onInstalled.addListener(function () {
+browser.runtime.onInstalled.addListener(() => {
 });

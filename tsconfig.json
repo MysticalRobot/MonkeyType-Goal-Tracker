@@ -3,14 +3,15 @@
     // Environment setup & latest features
     "lib": ["ESNext", "dom"],
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "Preserve",
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
 
-    "moduleResolution": "node",
+    // Bundler mode
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": false,
-    "verbatimModuleSyntax": false,
+    "verbatimModuleSyntax": true,
     "noEmit": false,
     "outDir": "./compiled/",
 
@@ -26,6 +27,5 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-
-  "include": ["*.ts", "*.svg", "svg.d.ts"]
+  "include": ["*.ts"]
 }

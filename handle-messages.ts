@@ -1,4 +1,4 @@
-import icon from './icon.svg';
+import icon from './icon.js';
 
 class UpdateIconError extends Error {
   query: string;
@@ -18,22 +18,24 @@ interface ColorAPIResponse {
   }
 }
 
-async function updateIcon(request: UpdateIconRequest) {
-  const mainColorPlaceholder = 'e2b714';
-  const backgroundColorPlaceholder = '323437';
-  console.log('recieved UpdateIconRequest, fetching hex colors');
-  // convert rgb values to hex with the color api
-  const query1 = `/id?rgb=${request.mainColor}`;
-  const query2 = `/id?rgb=${request.backgroundColor}`;
-  const colorAPIRequest1 = new Request(`https://www.thecolorapi.com${query1}`, {
-    method: 'GET',
-    headers: new Headers({ 'Content-Type': 'applications/json' }),
-  });
-  const colorAPIRequest2 = new Request(`https://www.thecolorapi.com${query2}`, {
-    method: 'GET',
-    headers: new Headers({ 'Content-Type': 'applications/json' }),
-  });
+async function updateIcon(request: any) {
   try {
+    if (request.action !== 'updateIcon') return;
+    const req = request as UpdateIconRequest;
+    const mainColorPlaceholder = 'e2b714';
+    const backgroundColorPlaceholder = '323437';
+    console.log('recieved UpdateIconRequest, fetching hex colors');
+    // convert rgb values to hex with the color api
+    const query1 = `/id?rgb=${req.mainColor}`;
+    const query2 = `/id?rgb=${req.backgroundColor}`;
+    const colorAPIRequest1 = new Request(`https://www.thecolorapi.com${query1}`, {
+      method: 'GET',
+      headers: new Headers({ 'Content-Type': 'applications/json' }),
+    });
+    const colorAPIRequest2 = new Request(`https://www.thecolorapi.com${query2}`, {
+      method: 'GET',
+      headers: new Headers({ 'Content-Type': 'applications/json' }),
+    });
     const response1 = await window.fetch(colorAPIRequest1);
     const response2 = await window.fetch(colorAPIRequest2);
     const mainColorValues: ColorAPIResponse = await response1.json();
@@ -61,13 +63,4 @@ async function updateIcon(request: UpdateIconRequest) {
     }
   }
 }
-
-function handleMessages(request: any) {
-  if (request.action === 'updateIcon') {
-    updateIcon(request)
-  } else {
-    // handle other actions here
-  }
-}
-
-browser.runtime.onMessage.addListener(handleMessages);
+browser.runtime.onMessage.addListener(updateIcon); 
