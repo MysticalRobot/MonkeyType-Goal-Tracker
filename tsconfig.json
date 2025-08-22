@@ -27,5 +27,4 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": ["*.ts"]
 }
