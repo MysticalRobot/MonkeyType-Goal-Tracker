@@ -1,4 +1,38 @@
-const icon = `<svg width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+export function freezeObject(object) {
+    if (!(object instanceof Object))
+        return object;
+    Object.entries(object).forEach(([prop, value]) => {
+        if (value instanceof Object) {
+            Object.defineProperty(object, prop, freezeObject(value));
+        }
+    });
+    return Object.freeze(object);
+}
+export function validate(item, example) {
+    if (!(item instanceof Object)) {
+        return `validation error: ${item} is not an object`;
+    }
+    Object
+        .entries(example)
+        .forEach(([prop, value]) => {
+        if (!Object.hasOwn(item, prop)) {
+            return `validation error: ${item} does not have property: ${prop}`;
+        }
+        else if (typeof item.prop !== typeof value) {
+            return `validation error: ${item}'s property ${prop} does not have type: ${typeof value}`;
+        }
+        else if (!(item.prop instanceof Object)) {
+            const result = validate(item.prop, value);
+            if (result !== undefined) {
+                return result;
+            }
+        }
+    });
+    return undefined;
+}
+export const mainColor = 'e2b714';
+export const bgColor = '323437';
+export const icon = `<svg width="48" height="48" xmlns="http://www.w3.org/2000/svg">
 <ellipse ry="24" rx="24" id="svg_17" cy="24" cx="24" stroke-width="0" stroke="#fff" fill="#e2b714"/>
 <path fill="#ff0000" stroke="#323437" stroke-width="0" opacity="NaN" d="m19.625,1.5625" id="svg_14"/>
 <rect rx="1" stroke-width="0" transform="rotate(-7.38187, 31.6587, 15.606) matrix(0.721599, -0.637918, 0.626134, 0.73518, -1.39676, 30.2705)" id="svg_3" height="4" width="18" y="9.29631" x="27.00673" stroke="#323437" fill="#e2b714"/>
@@ -22,4 +56,3 @@ const icon = `<svg width="48" height="48" xmlns="http://www.w3.org/2000/svg">
 <rect transform="rotate(-30, 34.9718, 42.9641)" rx="1" id="svg_43" height="4" width="1" y="40.96412" x="34.47182" stroke-width="0" stroke="#fff" fill="#e2b714"/>
 <rect transform="rotate(150, 13.1281, 5.12963)" rx="1" id="svg_44" height="4" width="1" y="3.12963" x="12.62807" stroke-width="0" stroke="#fff" fill="#e2b714"/>
 </svg>`;
-export default icon;
