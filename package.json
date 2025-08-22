@@ -1,14 +1,13 @@
 {
 	"name": "mt-tracker",
 	"devDependencies": {
-		"@types/firefox-webext-browser": "^120.0.4"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
+		"@types/firefox-webext-browser": "^120.0.4",
+		"typescript": "^5.9.2"
 	},
 	"private": true,
 	"scripts": {
-		"skibidi": "tsc",
-		"toilet": "web-ext lint && web-ext run --firefox-binary /Applications/LibreWolf.app/Contents/MacOS/librewolf"
+		"lint": "web-ext lint",
+		"build": "tsc && bun build --outdir=./compiled --target=browser --format=iife ./content-script.ts",
+		"dev": "tsc && bun build --outdir=./compiled --target=browser --format=iife ./content-script.ts && web-ext run --devtools --firefox-binary /Applications/LibreWolf.app/Contents/MacOS/librewolf"
 	}
 }
