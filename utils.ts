@@ -8,7 +8,7 @@ export function freezeObject<Type>(object: Type): Type {
   return Object.freeze(object);
 }
 
-export function validate<T>(item: any, example: object & T): ValidationError {
+export function validate<T>(item: any, example: object & T): ValidationResult {
   if (!(item instanceof Object)) {
     return `validation error: ${item} is not an object`;
   }
