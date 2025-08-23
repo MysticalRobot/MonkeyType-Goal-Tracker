@@ -21,4 +21,6 @@ declare interface IconDataURIRequest {
 declare interface IconDataURIResponse {
   readonly iconDataURI: string;
 }
-declare type ValidationError = string | undefined;
+declare type StorageEntry = { iconDataURI: string };
+declare type StorageKey = keyof StorageEntry;
+declare type ValidationResult = string | undefined;
