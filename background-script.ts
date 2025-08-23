@@ -1,49 +1,75 @@
 import { freezeObject, validate } from './utils.js';
 
-// listen for requests from the content script to set the browser action icon
-browser.runtime.onMessage.addListener(async (request: any) => {
-  const validationError = validate(request, freezeObject({
-    action: 'updateIcon', iconDataURI: 'skibidi toilet'
-  } as UpdateIconRequest));
-  if (validationError) {
-    return Promise.resolve(freezeObject({
-      success: false,
-      message: `failed UpdateIconRequest, ${validationError}`
-    }) as UpdateIconResponse);
-  }
-  console.log('recieved UpdateIconRequest, updating icon');
-  return browser.action
-    .setIcon({ path: request.iconDataURI })
-    .then(() => (freezeObject({
-      success: true, message: 'completed UpdateIconRequest, icon updated'
-    } as UpdateIconResponse)))
-    .catch((error: any) => (freezeObject({
-      success: false, message: `failed UpdateIconRequest, ${error}`
-    } as UpdateIconResponse)));
-});
+async function updateIconAndCacheURI(iconDataURI: string) {
+  await browser.storage.local.set({ iconDataURI } as StorageEntry);
+  return browser.action.setIcon({ path: iconDataURI })
+}
 
-// listen for changes in the active tab to tell the content
-// script to update local storage with the matching theme icon URI
-browser.tabs.onActivated.addListener((activeInfo) => {
+// requests icon data uri from the content script and 
+// caches it into local storage for notification to use
+async function makeIconDataURIRequest(tabId: number) {
   const request: IconDataURIRequest = freezeObject({
     action: 'sendIconDataURI'
   });
-  console.log('sending IconDataURIRequest');
-  browser.tabs
-    .sendMessage(activeInfo.tabId, request)
-    .then((response) => {
-      const validationError = validate(response, freezeObject({
-        iconDataURI: 'skibidi toilet'
-      } as IconDataURIResponse));
-      if (validationError) {
-        console.error('failed IconDataURIRequest, invalid IconDataURIResponse,', validationError);
-        return;
-      }
-      return browser.action.setIcon({ path: response.iconDataURI })
-    })
-    .then(() => { console.log('completed IconDataURIRequest, icon updated'); })
-    .catch((error) => { console.error(error) });
+  console.log('making IconDataURIRequest');
+  const response = await browser.tabs.sendMessage(tabId, request);
+  const validationResult = validate(response, freezeObject({
+    iconDataURI: 'skibidi toilet (random ahh string)'
+  } as IconDataURIResponse));
+  if (validationResult !== undefined) {
+    throw new Error(`failed IconDataURIRequest, ${validationResult}`);
+  }
+  return updateIconAndCacheURI(response.iconDataURI);
+}
+
+// respond to requests from the content script to set the icon
+browser.runtime.onMessage.addListener(async (request: any) => {
+  try {
+    const validationResult = validate(request, freezeObject({
+      action: 'updateIcon', iconDataURI: 'skibidi toilet'
+    } as UpdateIconRequest));
+    if (validationResult !== undefined) {
+      console.log(`recieved non UpdateIconRequest, ${validationResult}`);
+      return false;
+    }
+    console.log('recieved UpdateIconRequest, updating icon');
+    await updateIconAndCacheURI(request.iconDataURI);
+    return freezeObject({
+      success: true,
+      message: 'completed UpdateIconRequest, icon updated'
+    } as UpdateIconResponse)
+  } catch (error) {
+    return Promise.resolve(freezeObject({
+      success: false, message: `failed UpdateIconRequest, ${error}`
+    } as UpdateIconResponse));
+  }
 });
 
-// TODO init extension
-browser.runtime.onInstalled.addListener(() => { });
+// requests an icon data URI when a monkeytype tab is activated 
+browser.tabs.onActivated.addListener(async (activeInfo) => {
+  try {
+    const tabs = await browser.tabs.query({
+      active: true, currentWindow: true,
+      url: 'https://monkeytype.com/*'
+    });
+    if (tabs.length > 0) {
+      await makeIconDataURIRequest(activeInfo.tabId);
+      console.log('completed IconDataURIRequest, icon updated');
+    }
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+// TODO create custom event(s) and listeners that fire and notify 
+// respectively when the user hits certain milestones of their goal 
+
+// const title = browser.i18n.getMessage('notificationTitle');
+// const message = browser.i18n.getMessage('notificationContent', placeholder);
+// browser.notifications.create({
+//   type: 'basic',
+//   iconUrl: browser.extension.getURL("icons/link-48.png"),
+//   title: 'blah blah',
+//   message: 'yass bitch'
+// });
+//

@@ -16,11 +16,11 @@ const computeIconDataURI = (() => {
 // listen for requests from the background script to send the URI 
 // of the icon matching the activated tab's (this tab) theme 
 browser.runtime.onMessage.addListener((request) => {
-  const validationError = validate(request, freezeObject({
+  const validationResult = validate(request, freezeObject({
     action: 'sendIconDataURI'
   } as IconDataURIRequest));
-  if (validationError) {
-    console.error('recieved invalid IconDataURIRequest,', validationError);
+  if (validationResult !== undefined) {
+    console.log(`recieved non IconDataURIRequest, ${validationResult}`);
     return false;
   }
   console.log('recieved IconDataURIRequest, sending IconDataURIResponse');
@@ -32,25 +32,25 @@ browser.runtime.onMessage.addListener((request) => {
 // update the icon updon the addition or removal of child nodes to the 
 // document's body because monkeytype updates the theme this way
 // (in particluar, it adds and removes links to stylesheets)
-const observer = new MutationObserver(() => {
-  console.log('sending UpdateIconRequest');
-  browser.runtime
-    .sendMessage(freezeObject({
+const observer = new MutationObserver(async () => {
+  try {
+    console.log('making UpdateIconRequest');
+    const response = await browser.runtime.sendMessage(freezeObject({
       action: 'updateIcon', iconDataURI: computeIconDataURI()
-    } as UpdateIconRequest))
-    .then((response) => {
-      const validationError = validate(response, freezeObject({
-        success: false, message: 'deez nuts'
-      } as UpdateIconResponse));
-      if (validationError) {
-        console.error('recieved invalid UpdateIconResponse', validationError);
-      } else if (!response.success) {
-        console.error(response.message);
-      } else if (response.success) {
-        console.log(response.message);
-      }
-    })
-    .catch((error) => { console.error(error) });
+    } as UpdateIconRequest));
+    const validationResult = validate(response, freezeObject({
+      success: false, message: 'deez nuts (random ahh string)'
+    } as UpdateIconResponse));
+    if (validationResult !== undefined) {
+      throw new Error(`failed UpdateIconRequest, ${validationResult}`);
+    } else if (!response.success) {
+      throw new Error(response.message);
+    } else if (response.success) {
+      console.log(response.message);
+    }
+  } catch (error) {
+    console.error(error);
+  }
 });
 observer.observe(document.body, { childList: true });
 

@@ -64,11 +64,11 @@
     };
   })();
   browser.runtime.onMessage.addListener((request) => {
-    const validationError = validate(request, freezeObject({
+    const validationResult = validate(request, freezeObject({
       action: "sendIconDataURI"
     }));
-    if (validationError) {
-      console.error("recieved invalid IconDataURIRequest,", validationError);
+    if (validationResult !== undefined) {
+      console.log(`recieved non IconDataURIRequest, ${validationResult}`);
       return false;
     }
     console.log("recieved IconDataURIRequest, sending IconDataURIResponse");
@@ -76,26 +76,27 @@
       iconDataURI: computeIconDataURI()
     }));
   });
-  var observer = new MutationObserver(() => {
-    console.log("sending UpdateIconRequest");
-    browser.runtime.sendMessage(freezeObject({
-      action: "updateIcon",
-      iconDataURI: computeIconDataURI()
-    })).then((response) => {
-      const validationError = validate(response, freezeObject({
-        success: false,
-        message: "deez nuts"
+  var observer = new MutationObserver(async () => {
+    try {
+      console.log("making UpdateIconRequest");
+      const response = await browser.runtime.sendMessage(freezeObject({
+        action: "updateIcon",
+        iconDataURI: computeIconDataURI()
       }));
-      if (validationError) {
-        console.error("recieved invalid UpdateIconResponse", validationError);
+      const validationResult = validate(response, freezeObject({
+        success: false,
+        message: "deez nuts (random ahh string)"
+      }));
+      if (validationResult !== undefined) {
+        throw new Error(`failed UpdateIconRequest, ${validationResult}`);
       } else if (!response.success) {
-        console.error(response.message);
+        throw new Error(response.message);
       } else if (response.success) {
         console.log(response.message);
       }
-    }).catch((error) => {
+    } catch (error) {
       console.error(error);
-    });
+    }
   });
   observer.observe(document.body, { childList: true });
   var wordsInput = document.getElementById("wordsInput");
