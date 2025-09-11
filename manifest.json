@@ -10,30 +10,35 @@
     }
   },
   "icons": {
-    "48": "icon.svg"
+    "48": "./assets/icon.svg"
   },
   "action": {
-    "default_icon": "icon.svg",
+    "default_icon": "./assets/icon.svg",
     "default_title": "MonkeyType Goal Tracker",
-    "default_popup": "popup/popup.html"
+    "default_popup": "./out/index.html"
   },
   "web_accessible_resources": [
     {
-      "resources": ["compiled/utils.js"],
+      "resources": [],
       "extension_ids": []
     }
   ],
   "background": {
-    "scripts": ["compiled/background-script.js"],
+    "scripts": ["./out/background-script.js"],
     "type": "module"
   },
   "content_scripts": [
     {
       "matches": ["https://monkeytype.com/*"],
-      "js": ["compiled/content-script.js"],
+      "js": ["./out/update-theme.js"],
       "run_at": "document_end"
+    },
+    {
+      "matches": ["https://monkeytype.com/"],
+      "js": ["./out/count-typing.js"],
+      "run_at": "document_start"
     }
-	],
+  ],
 	"permissions": [
     "notifications",
     "tabs",
