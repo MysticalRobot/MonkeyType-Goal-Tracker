@@ -7,20 +7,27 @@ declare type Primitive =
   | 'string'
   | 'symbol'
   | 'function';
+declare interface Theme {
+  readonly mainColor: string;
+  readonly bgColor: string;
+}
 declare interface UpdateIconRequest {
   readonly action: 'updateIcon';
-  readonly iconDataURI: string;
+  readonly theme: Theme;
 }
 declare interface UpdateIconResponse {
   readonly success: boolean;
   readonly message: string;
 }
-declare interface IconDataURIRequest {
-  readonly action: 'sendIconDataURI';
+declare interface ThemeRequest {
+  readonly action: 'sendTheme';
 }
-declare interface IconDataURIResponse {
-  readonly iconDataURI: string;
+declare interface ThemeResponse {
+  readonly theme: Theme;
 }
-declare type StorageEntry = { iconDataURI: string };
-declare type StorageKey = keyof StorageEntry;
-declare type ValidationResult = string | undefined;
+declare interface Storage {
+  iconDataURI: string;
+  theme: Theme;
+}
+declare type StorageKey = keyof Storage;
+declare type ValidationError = string | undefined;
