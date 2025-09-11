@@ -1,0 +1,13 @@
+- create and push an annotated tag upon completion: 
+    - `git tag -a v1.0 -m "version 1.0"`
+    - `git push origin v1.0`
+- create and push lightweight tags upon feature completion:
+    - `git tag v0.0 -m "finished icon sync feature"`
+- background script: 
+    - limit total monkeytype api requests to 30. 
+    - log the time spent typing, which is recieved from the content script, and update browser.storage.local
+    - store the data for the current day separately but throw it into the pile with the rest of the data at midnight (via alarm). 
+- popup script
+    - upon saving mt username, get test activity for the last 372 days and grab as many results as possible
+- content script
+    - when a test completes, add the time spent typing to the browser storage 
