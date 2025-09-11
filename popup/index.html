@@ -10,7 +10,7 @@
 <body>
   <div id="popup">
     <div id="tabContainer">
-      <div id="progress" class="tab" aria-hidden="false">
+      <div id="progressTab" class="tab" aria-hidden="false">
         <h1>Progress</h1>
         <div class="tabContent">
           <div>
@@ -35,7 +35,7 @@
           </div>
         </div>
       </div>
-      <div id="goal" class="tab hidden" aria-hidden="true">
+      <div id="goalTab" class="tab hidden" aria-hidden="true">
         <h1>Goal</h1>
         <form class="tabContent">
           <fieldset>
@@ -63,7 +63,7 @@
           </fieldset>
         </form>
       </div>
-      <div id="settings" class="tab hidden" aria-hidden="true">
+      <div id="settingsTab" class="tab hidden" aria-hidden="true">
         <h1>Settings</h1>
         <form class="tabContent">
           <fieldset>
@@ -85,18 +85,18 @@
       </div>
     </div>
     <nav id="navBar">
-      <a id="progressLink" class="navLink">
+      <button id="progress" class="navButton">
         <img src="../assets/hourglass.svg" />
         Progress
-      </a>
-      <a id="goalLink" class="navLink">
+      </button>
+      <button id="goal" class="navButton">
         <img src="../assets/target.svg" />
         Goal
-      </a>
-      <a id="settingsLink" class="navLink">
+      </button>
+      <button id="settings" class="navButton">
         <img src="../assets/settings.svg" />
         Settings
-      </a>
+      </button>
     </nav>
   </div>
 </body>

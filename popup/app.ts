@@ -1,18 +1,16 @@
-const navLinks = document.getElementsByClassName('navLink') as HTMLCollectionOf<HTMLAnchorElement>;
+const navButtons = document.getElementsByClassName('navButton') as HTMLCollectionOf<HTMLButtonElement>;
 const tabs = document.getElementsByClassName('tab') as HTMLCollectionOf<HTMLDivElement>;
-console.log(navLinks);
-console.log(tabs);
 
 // display the tab that was clicked on, hide the rest
-for (const navLink of navLinks) {
-  navLink.addEventListener('click', () => {
-    // e.g. 'progressLink' -> 'progress'
-    const tabId = navLink.id.slice(0, -4);
-    console.log(tabId);
+for (const navButton of navButtons) {
+  navButton.addEventListener('click', () => {
     for (const tab of tabs) {
-      console.log(tab.id);
-      tab.setAttribute('hidden', `${tab.id !== tabId}`);
+      // ignore the 'Tab' suffix in the tab's id
+      if (tab.id.startsWith(navButton.id)) {
+        tab.classList.remove('hidden');
+      } else {
+        tab.classList.add('hidden');
+      }
     }
-    console.log(tabs);
   });
 }

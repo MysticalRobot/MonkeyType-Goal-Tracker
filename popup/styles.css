@@ -14,31 +14,16 @@
   grid-template-columns: repeat(6, 1fr);
 }
 
-#tabContainer {
-  grid-column-start: 1;
-  grid-column-end: 5;
-}
-
 #navBar {
-  height: inherit;
-  max-height: inherit;
-  width: 50px;
-  max-width: 50px;
-  grid-column: 6;
-}
-
-#navBar:hover {
-  cursor: pointer;
-}
-
-.navlink {
-  width: 100%;
-  width: 100%;
-}
-
-.navlink>img {
   height: 100%;
-  width: 100%;
+  width: 20%;
+  display: grid;
+  grid-auto-rows: auto;
+}
+
+img {
+  height: 1rem;
+  width: 1rem;
 }
 
 .hidden {
