@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8" />
+  <script src="./app.ts" type="module"></script>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+  <div id="popup">
+    <div id="tabContainer">
+      <div id="progress" class="tab" aria-hidden="false">
+        <h1>Progress</h1>
+        <div class="tabContent">
+          <div>
+            <h2>Today's Progress</h2>
+            <div id="progressBar"></div>
+          </div>
+          <div>
+            <div>
+              <div>
+                <img src="../assets/fire.svg" />
+                <h3>Current</h3>
+              </div>
+              <p>0</p>
+            </div>
+            <div>
+              <div>
+                <img src="../assets/trophy.svg" />
+                <h3>Best</h3>
+              </div>
+              <p>0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="goal" class="tab hidden" aria-hidden="true">
+        <h1>Goal</h1>
+        <form class="tabContent">
+          <fieldset>
+            <legend>Daily Goal (minutes)</legend>
+            <div>
+              <label for="sun">Sun</label>
+              <input id="sun" class="dayInput" type="radio" />
+              <label for="mon">Mon</label>
+              <input id="mon" class="dayInput" type="radio" />
+              <label for="tue">Tue</label>
+              <input id="tue" class="dayInput" type="radio" />
+              <label for="wed">Wed</label>
+              <input id="wed" class="dayInput" type="radio" />
+              <label for="thu">Thu</label>
+              <input id="thu" class="dayInput" type="radio" />
+              <label for="fri">Fri</label>
+              <input id="fri" class="dayInput" type="radio" />
+              <label for="sat">Sat</label>
+              <input id="sat" class="dayInput" type="radio" />
+            </div>
+            <div>
+              <input id="minutesInput" type="number" min="0" max="1440" value="0" />
+              <p id="minutesConversion"></p>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+      <div id="settings" class="tab hidden" aria-hidden="true">
+        <h1>Settings</h1>
+        <form class="tabContent">
+          <fieldset>
+            <legend>Monkeytype Username</legend>
+            <input id="usernameInput" type="text" placeholder="QuandaleDingle42069" />
+          </fieldset>
+          <fieldset>
+            <legend>Notification Upon</legend>
+            <label for="never">Never</label>
+            <input id="never" class="notificationInput" type="radio" />
+            <label for="quarter">Every Quarter Goal Completion</label>
+            <input id="quarter" class="notificationInput" type="radio" />
+            <label for="half">Every Half Goal Completion</label>
+            <input id="half" class="notificationInput" type="radio" />
+            <label for="complete">Goal Completion</label>
+            <input id="complete" class="notificationInput" type="radio" />
+          </fieldset>
+        </form>
+      </div>
+    </div>
+    <nav id="navBar">
+      <a id="progressLink" class="navLink">
+        <img src="../assets/hourglass.svg" />
+        Progress
+      </a>
+      <a id="goalLink" class="navLink">
+        <img src="../assets/target.svg" />
+        Goal
+      </a>
+      <a id="settingsLink" class="navLink">
+        <img src="../assets/settings.svg" />
+        Settings
+      </a>
+    </nav>
+  </div>
+</body>
+
+</html>
