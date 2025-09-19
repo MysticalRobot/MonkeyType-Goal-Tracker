@@ -1,16 +1,15 @@
 {
 	"name": "mt-tracker",
 	"devDependencies": {
-		"@types/firefox-webext-browser": "^120.0.4"
+		"@types/firefox-webext-browser": "^120.0.4",
+		"typescript": "^5.9.2"
 	},
 	"private": true,
 	"scripts": {
 		"lint": "web-ext lint",
 		"clean": "rm -rf ./out/*",
 		"build": "bun build.js",
-		"dev": "bun build.js && web-ext run --devtools --firefox-binary /Applications/LibreWolf.app/Contents/MacOS/librewolf"
-	},
-	"dependencies": {
-		"typescript": "^5.9.2"
+		"dev": "bun build.js && web-ext run --firefox-binary /Applications/LibreWolf.app/Contents/MacOS/librewolf",
+		"debug": "bun build.js && web-ext run --devtools --firefox-binary /Applications/LibreWolf.app/Contents/MacOS/librewolf"
 	}
 }
