@@ -1,19 +1,35 @@
-// count the time spent typing
-const wordsInput = document.getElementById('wordsInput');
-if (wordsInput !== null) {
+// create handlers that manage the time spent typing and last keypress time
+function createCallbacks() {
   let time: number = 0;
-  let start: number | undefined = undefined;
-  wordsInput.addEventListener('input', () => {
-    if (start === undefined) {
-      start = Date.now();
-      return;
+  let last: number | undefined = undefined;
+  const keypressCallback = () => {
+    if (last === undefined) {
+      last = Date.now();
     }
-    const end = Date.now();
-    time += (end - start) / 1000;
-    start = undefined;
-  });
-  wordsInput.addEventListener('focusout', () => {
+    const current = Date.now();
+    const oneSecond = 1000;
+    const elapsed = (current - last) / oneSecond;
+    if (elapsed > 1) {
+      console.debug(`ignoring afk period of ${elapsed} seconds`);
+    } else {
+      time += elapsed
+    }
+    last = current;
+  };
+  const saveElapsedTime = () => {
     console.log(time);
     time = 0;
-  });
+  };
+  return [keypressCallback, saveElapsedTime]
+}
+
+const wordsInput = document.getElementById('wordsInput');
+const [keypressCallback, saveElapsedTime] = createCallbacks();
+if (wordsInput !== null &&
+  keypressCallback !== undefined &&
+  saveElapsedTime !== undefined) {
+  wordsInput.addEventListener('keypress', keypressCallback);
+  wordsInput.addEventListener('focusout', saveElapsedTime);
+  const tenSeconds = 10000;
+  setInterval(saveElapsedTime, tenSeconds);
 }
