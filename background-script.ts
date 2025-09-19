@@ -1,9 +1,9 @@
-import { getIconURI, freezeObject, validate } from './utils.ts';
+import { getIconURI, schemaContainer, validate } from './utils.ts';
 
 async function cacheThemeAndIconAndSetIcon(theme: Theme) {
   try {
     await browser.storage.local.set({ theme });
-    const iconDataURI: StorageKey & string = getIconURI(theme);
+    const iconDataURI = getIconURI(theme);
     await browser.storage.local.set({ iconDataURI });
     return browser.action.setIcon({ path: iconDataURI });
   } catch (error) {
@@ -15,27 +15,26 @@ async function cacheThemeAndIconAndSetIcon(theme: Theme) {
 browser.runtime.onMessage.addListener(
   async (request: any, sender: browser.runtime.MessageSender) => {
     try {
-      const validationError = validate(request, freezeObject({
-        action: 'updateIcon', theme: { mainColor: '123456', bgColor: '654321' }
-      } as UpdateIconRequest));
+      const validationError = validate(request, schemaContainer.updateIconRequest);
       if (validationError !== undefined) {
         console.debug(`recieved non UpdateIconRequest, ${validationError}`);
         return false;
       }
+      const theme = request as UpdateIconRequest;
       if (!sender.tab?.active) {
         console.debug(`ignoring UpdateIconRequest from inactive tab, ${validationError}`);
-        return Promise.resolve(freezeObject({
+        return Promise.resolve(Object.freeze({
           success: true, message: 'UpdateIconRequest ignored'
         } as UpdateIconResponse));
       }
       console.debug('recieved UpdateIconRequest, updating icon');
-      await cacheThemeAndIconAndSetIcon(request.theme);
-      return freezeObject({
+      await cacheThemeAndIconAndSetIcon(theme);
+      return Object.freeze({
         success: true,
         message: 'completed UpdateIconRequest, icon updated'
       } as UpdateIconResponse)
     } catch (error) {
-      return Promise.resolve(freezeObject({
+      return Promise.resolve(Object.freeze({
         success: false, message: `failed UpdateIconRequest, ${error}`
       } as UpdateIconResponse));
     }
@@ -51,18 +50,17 @@ browser.tabs.onActivated.addListener(async (activeInfo) => {
     if (tabs.length === 0) {
       return;
     }
-    const request: ThemeRequest = freezeObject({
+    const request: ThemeRequest = Object.freeze({
       action: 'sendTheme'
     });
     console.debug('making ThemeRequest');
     const response = await browser.tabs.sendMessage(activeInfo.tabId, request);
-    const validationError = validate(response, freezeObject({
-      theme: { mainColor: '123456', bgColor: '654321' }
-    } as ThemeResponse));
+    const validationError = validate(response, schemaContainer.themeResponse);
     if (validationError !== undefined) {
       throw new Error(`failed ThemeRequest, ${validationError}`);
     }
-    await cacheThemeAndIconAndSetIcon(response.theme);
+    const theme = response as ThemeResponse;
+    await cacheThemeAndIconAndSetIcon(theme);
     console.debug('completed ThemeRequest, icon updated');
   } catch (error) {
     console.error(error);
@@ -72,14 +70,13 @@ browser.tabs.onActivated.addListener(async (activeInfo) => {
 // attempts to set the icon upon browser startup using a cached version of it
 browser.runtime.onStartup.addListener(async () => {
   try {
-    const iconDataURIContainer = await browser.storage.local.get('iconDataURI');
-    const validationError = validate(iconDataURIContainer, freezeObject({
-      iconDataURI: 'dattebayo!'
-    }));
+    // TODO maybe avoid getting the whole storage (for now it's small so it doesn't matter)
+    const browserStorage = await browser.storage.local.get(null);
+    const validationError = validate(browserStorage, schemaContainer.browserStorage);
     if (validationError === undefined) {
-      console.debug(`cached iconDataURI not found: ${validationError}`);
+      console.debug(`unable to retrieve browserStorage: ${validationError}`);
     }
-    await browser.action.setIcon(iconDataURIContainer.iconDataURI);
+    await browser.action.setIcon(browserStorage.iconDataURI);
   } catch (error) {
     console.error(error);
   }

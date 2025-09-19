@@ -1,17 +1,17 @@
-import { freezeObject, validate } from './utils.ts';
+import { schemaContainer, validate } from './utils.ts';
 
 // gets the colors that Monkeytype uses for it's tab icon
 const getTheme = (() => {
   const root_style = window.getComputedStyle(document.documentElement);
-  return (): Theme => ({
+  return (): Theme => (Object.freeze({
     mainColor: root_style.getPropertyValue('--main-color').substring(1),
     bgColor: root_style.getPropertyValue('--bg-color').substring(1)
-  })
+  }))
 })();
 
 // if needed, handles the request to, and response from, the bg script to update the icon 
 const updateIcon = (() => {
-  let theme: Theme = getTheme();
+  let theme: Theme & UpdateIconRequest = getTheme();
   return async () => {
     try {
       const currentTheme = getTheme();
@@ -21,18 +21,16 @@ const updateIcon = (() => {
       }
       theme = currentTheme;
       console.debug('making UpdateIconRequest');
-      const response = await browser.runtime.sendMessage(freezeObject({
-        action: 'updateIcon', theme
-      } as UpdateIconRequest));
-      const validationError = validate(response, freezeObject({
-        success: false, message: 'deez nuts (random ahh string)'
-      } as UpdateIconResponse));
+      const response = await browser.runtime.sendMessage(theme);
+      const validationError = validate(response, schemaContainer.updateIconResponse);
       if (validationError !== undefined) {
         throw new Error(`failed UpdateIconRequest, ${validationError}`);
-      } else if (!response.success) {
-        throw new Error(response.message);
-      } else if (response.success) {
-        console.debug(response.message);
+      }
+      const updateIconResponse = response as UpdateIconResponse;
+      if (!updateIconResponse.success) {
+        throw new Error(updateIconResponse.message);
+      } else if (updateIconResponse.success) {
+        console.debug(updateIconResponse.message);
       }
     } catch (error) {
       console.error(error);
@@ -65,15 +63,12 @@ observer.observe(document.body, { childList: true });
 // listen for requests from the background script to send the URI 
 // of the icon matching the activated tab's (this tab) theme 
 browser.runtime.onMessage.addListener((request) => {
-  const validationError = validate(request, freezeObject({
-    action: 'sendTheme'
-  } as ThemeRequest));
+  const validationError = validate(request, schemaContainer.themeRequest);
   if (validationError !== undefined) {
     console.debug(`recieved non ThemeRequest, ${validationError}`);
     return false;
   }
   console.debug('recieved ThemeRequest, sending ThemeResponse');
-  return Promise.resolve(freezeObject({
-    theme: getTheme()
-  } as ThemeResponse));
+  const themeResponse: ThemeResponse = getTheme();
+  return Promise.resolve(themeResponse);
 });
