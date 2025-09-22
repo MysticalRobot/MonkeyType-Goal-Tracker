@@ -1,14 +1,13 @@
+export const defaultTheme: Theme = { mainColor: "e2b714", bgColor: "323437" };
+
 // schema that can be used with validate to verify an obs validity
 export const schemaContainer: SchemaContainer = (() => {
   const theme = Object.freeze({ mainColor: '6=len,hex?', bgColor: '6=len,hex?' });
   const updateIconRequest = theme;
   const updateIconResponse = Object.freeze({ success: false, message: 'any?' });
-  const themeRequest = Object.freeze({ action: 'eq?sendTheme' });
-  const themeResponse = theme;
   const browserStorage = Object.freeze({ iconDataURI: 'any=len,base64?', theme });
   return {
-    theme, updateIconRequest, updateIconResponse,
-    themeRequest, themeResponse, browserStorage
+    theme, updateIconRequest, updateIconResponse, browserStorage
   };
 })();
 

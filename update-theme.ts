@@ -11,12 +11,12 @@ const getTheme = (() => {
 
 // if needed, handles the request to, and response from, the bg script to update the icon 
 const updateIcon = (() => {
-  let theme: Theme & UpdateIconRequest = getTheme();
+  let theme: Theme & UpdateIconRequest | undefined = undefined;
   return async () => {
     try {
       const currentTheme = getTheme();
-      if (currentTheme.bgColor == theme.bgColor &&
-        currentTheme.mainColor == theme.mainColor) {
+      if (theme !== undefined && currentTheme.bgColor === theme.bgColor &&
+        currentTheme.mainColor === theme.mainColor) {
         return;
       }
       theme = currentTheme;
@@ -60,15 +60,5 @@ document.addEventListener('visibilitychange', intervalManager);
 const observer = new MutationObserver(updateIcon);
 observer.observe(document.body, { childList: true });
 
-// listen for requests from the background script to send the URI 
-// of the icon matching the activated tab's (this tab) theme 
-browser.runtime.onMessage.addListener((request) => {
-  const validationError = validate(request, schemaContainer.themeRequest);
-  if (validationError !== undefined) {
-    console.debug(`recieved non ThemeRequest, ${validationError}`);
-    return false;
-  }
-  console.debug('recieved ThemeRequest, sending ThemeResponse');
-  const themeResponse: ThemeResponse = getTheme();
-  return Promise.resolve(themeResponse);
-});
+// update the icon upon page load
+updateIcon();
