@@ -7,12 +7,16 @@
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
+    "types": [
+      "./node_modules/@types/firefox-webext-browser/index.d.ts", 
+      "./types.d.ts"
+    ],
 
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "noEmit": false,
+    "noEmit": true,
     "outDir": "./out",
 
     // Best practices
@@ -27,5 +31,9 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": ["*"]
+  "include": [
+    "./background-script.ts",
+    "./content-scripts/*",
+    "./popup/app.ts"
+  ]
 }

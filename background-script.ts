@@ -1,57 +1,83 @@
-import { getIconURI, schemaContainer, validate } from './utils.ts';
+import icon from './assets/icon.js';
 
-browser.runtime.onConnect.addListener((port) => {
-  port.onMessage.addListener((request) => {
-    console.log(request);
-  });
-});
+// modifies the icon svg with the theme's colors and creates a data URI to use it
+function getIconURI(theme: Theme): string {
+  const mainColor = /e2b714/g;
+  const bgColor = /323437/g;
+  const modifedIcon = icon
+    .replace(mainColor, theme.mainColor)
+    .replace(bgColor, theme.bgColor);
+  return `data:image/svg+xml;base64,${window.btoa(modifedIcon)}`;
+}
+
+function createUpdateIconRequestHandler(port: browser.runtime.Port,
+  sender: browser.runtime.MessageSender) {
+  return (message: object) => {
+    // wrapped the async function, which should not throw errors, to type check
+    (async () => {
+      const theme = message as Theme;
+      try {
+        // this case probably will not happen 🤓
+        if (sender.tab === undefined) {
+          console.debug('ignoring UpdateIconRequest from closed tab');
+          return;
+        }
+        if (sender.tab.id === undefined) {
+          port.postMessage({
+            success: false, message: 'failed UpdateIconRequest, unable to get tabId'
+          } as UpdateIconResponse);
+          return;
+        }
+        console.debug('recieved UpdateIconRequest, updating icon');
+        await browser.storage.local.set({ theme });
+        const iconDataURI = getIconURI(theme);
+        await browser.storage.local.set({ iconDataURI });
+        await browser.action.setIcon({ path: iconDataURI, tabId: sender.tab.id });
+        port.postMessage({
+          success: true,
+          message: 'completed UpdateIconRequest, icon updated'
+        } as UpdateIconResponse);
+      } catch (error) {
+        port.postMessage({
+          success: false, message: `failed UpdateIconRequest, ${error}`
+        } as UpdateIconResponse);
+      }
+    })();
+  }
+}
 
 // respond to requests from the content script to set the icon
-browser.runtime.onMessage.addListener(
-  async (request: any, sender: browser.runtime.MessageSender) => {
-    try {
-      const validationError = validate(request, schemaContainer.updateIconRequest);
-      if (validationError !== undefined) {
-        console.debug(`recieved non UpdateIconRequest, ${validationError}`);
-        return false;
-      }
-      const theme = request as UpdateIconRequest;
-      if (sender.tab === undefined) {
-        console.debug('ignoring UpdateIconRequest from closed tab');
-        return false;
-      }
-      if (sender.tab.id === undefined) {
-        return Promise.resolve(Object.freeze({
-          success: false, message: 'failed UpdateIconRequest, unable to get tabId'
-        } as UpdateIconResponse));
-      }
-      console.debug('recieved UpdateIconRequest, updating icon');
-      await browser.storage.local.set({ theme });
-      const iconDataURI = getIconURI(theme);
-      await browser.storage.local.set({ iconDataURI });
-      await browser.action.setIcon({ path: iconDataURI, tabId: sender.tab.id });
-      return Object.freeze({
-        success: true,
-        message: 'completed UpdateIconRequest, icon updated'
-      } as UpdateIconResponse)
-    } catch (error) {
-      return Promise.resolve(Object.freeze({
-        success: false, message: `failed UpdateIconRequest, ${error}`
-      } as UpdateIconResponse));
-    }
-  });
+browser.runtime.onConnect.addListener((port) => {
+  const sender = port.sender;
+  if (sender === undefined) {
+    port.disconnect();
+    return;
+  }
+  const updateIconRequestHandler = createUpdateIconRequestHandler(port, sender);
+  port.onMessage.addListener(updateIconRequestHandler);
+});
 
 // attempts to set the icon upon browser startup using a cached version of it
 browser.runtime.onStartup.addListener(async () => {
   try {
-    // TODO maybe avoid getting the whole storage (for now it's small so it doesn't matter)
-    const browserStorage = await browser.storage.local.get(null);
-    const validationError = validate(browserStorage, schemaContainer.browserStorage);
-    if (validationError !== undefined) {
-      console.debug(`unable to retrieve browserStorage: ${validationError}`);
-      return;
+    const iconDataURIKey: BrowserStorageKey = 'iconDataURI';
+    const iconDataURI = await browser.storage.local.get(iconDataURIKey);
+    await browser.action.setIcon(iconDataURI);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+// TOD
+browser.action.onClicked.addListener(async (tab) => {
+  try {
+    console.log('hi');
+    let currentTab = tab;
+    if (!tab.url?.includes('https://monkeytype.com/')) {
+      currentTab = await browser.tabs.create({ url: 'https://monkeytype.com/', active: true });
     }
-    await browser.action.setIcon(browserStorage.iconDataURI);
+    browser.tabs.update(tab.id, { active: true });
+    const response = await browser.tabs.sendMessage(currentTab.id, { action: 'toggleSidebar' });
   } catch (error) {
     console.error(error);
   }
