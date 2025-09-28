@@ -1,35 +1,32 @@
-// create handlers that manage the time spent typing and last keypress time
-function createCallbacks() {
-  let time: number = 0;
-  let last: number | undefined = undefined;
-  const keypressCallback = () => {
-    if (last === undefined) {
-      last = Date.now();
+function createTimingCallbacks(): [() => void, () => void] {
+  let timeTypingSeconds: number = 0;
+  let lastTime: number | undefined = undefined;
+  const recordTimeTyping = () => {
+    if (lastTime === undefined) {
+      lastTime = Date.now();
     }
-    const current = Date.now();
-    const oneSecond = 1000;
-    const elapsed = (current - last) / oneSecond;
-    if (elapsed > 1) {
-      console.debug(`ignoring afk period of ${elapsed} seconds`);
+    const currentTime = Date.now();
+    const oneSecondInMS = 1000;
+    const elapsedTimeSeconds = (currentTime - lastTime) / oneSecondInMS;
+    if (elapsedTimeSeconds > 1) {
+      console.debug(`ignoring afk period of ${elapsedTimeSeconds} seconds`);
     } else {
-      time += elapsed
+      timeTypingSeconds += elapsedTimeSeconds
     }
-    last = current;
+    lastTime = currentTime;
   };
-  const saveElapsedTime = () => {
-    console.log(time);
-    time = 0;
+  const saveTimeTyping = () => {
+    console.log(timeTypingSeconds);
+    timeTypingSeconds = 0;
   };
-  return [keypressCallback, saveElapsedTime]
+  return [recordTimeTyping, saveTimeTyping]
 }
 
 const wordsInput = document.getElementById('wordsInput');
-const [keypressCallback, saveElapsedTime] = createCallbacks();
-if (wordsInput !== null &&
-  keypressCallback !== undefined &&
-  saveElapsedTime !== undefined) {
-  wordsInput.addEventListener('keypress', keypressCallback);
-  wordsInput.addEventListener('focusout', saveElapsedTime);
-  const tenSeconds = 10000;
-  setInterval(saveElapsedTime, tenSeconds);
+const [recordTimeTyping, saveTimeTyping] = createTimingCallbacks();
+if (wordsInput !== null) {
+  wordsInput.addEventListener('keypress', recordTimeTyping);
+  wordsInput.addEventListener('focusout', saveTimeTyping);
+  const tenSecondsInMS = 10000;
+  setInterval(saveTimeTyping, tenSecondsInMS);
 }

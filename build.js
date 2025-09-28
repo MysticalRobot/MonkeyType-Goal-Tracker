@@ -10,7 +10,11 @@ try {
     outdir
   })
   await Bun.build({
-    entrypoints: ['./update-theme.ts', './count-typing.ts'],
+    entrypoints: [
+      './content-scripts/update-theme.ts',
+      './content-scripts/count-typing.ts',
+      './content-scripts/grab-info.ts'
+    ],
     outdir,
     format: 'iife',
   })

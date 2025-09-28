@@ -60,24 +60,9 @@ browser.runtime.onConnect.addListener((port) => {
 // attempts to set the icon upon browser startup using a cached version of it
 browser.runtime.onStartup.addListener(async () => {
   try {
-    const iconDataURIKey: BrowserStorageKey = 'iconDataURI';
+    const iconDataURIKey: keyof BrowserStorage = 'iconDataURI';
     const iconDataURI = await browser.storage.local.get(iconDataURIKey);
     await browser.action.setIcon(iconDataURI);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-// TOD
-browser.action.onClicked.addListener(async (tab) => {
-  try {
-    console.log('hi');
-    let currentTab = tab;
-    if (!tab.url?.includes('https://monkeytype.com/')) {
-      currentTab = await browser.tabs.create({ url: 'https://monkeytype.com/', active: true });
-    }
-    browser.tabs.update(tab.id, { active: true });
-    const response = await browser.tabs.sendMessage(currentTab.id, { action: 'toggleSidebar' });
   } catch (error) {
     console.error(error);
   }

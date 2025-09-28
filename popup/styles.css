@@ -12,21 +12,14 @@
   /* --dark-hover: gold; */
 }
 
-body {
-  display: none !important;
-}
-
 * {
   /* background-color: light-dark(light-bg, dark-bg); */
   /* color: light-dark(light-color, dark-color); */
-  padding: 0rem;
-  margin: 0rem;
-  font-family: "Roboto", sans-serif;
-  font-style: normal;
 }
 
-#sidebar {
-  width: 300px;
+body {
+  width: 400px;
+  height: 200px;
 }
 
 #streaks {
@@ -42,13 +35,28 @@ body {
   justify-content: space-evenly;
 }
 
+#dayInputs {
+  display: grid;
+}
+
+#dayInputs>:nth-child(odd) {
+  grid-column: 1;
+}
+
+#dayInputs>:nth-child(even) {
+  grid-column: 2;
+}
+
+input:invalid {
+  background-color: ivory;
+  border: none;
+  outline: 2px solid red;
+  border-radius: 5px;
+}
+
 img {
   height: 1rem;
   width: 1rem;
-}
-
-#usernameInput:invalid {
-  border-color: red;
 }
 
 button:hover {

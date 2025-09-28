@@ -56,4 +56,3 @@ declare type BrowserStorage = {
   iconDataURI: string;
   theme: Theme;
 }
-declare type BrowserStorageKey = keyof BrowserStorage;
