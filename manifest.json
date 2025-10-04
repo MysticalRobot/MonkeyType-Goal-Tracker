@@ -33,7 +33,7 @@
       "run_at": "document_start"
     },
     {
-      "matches": ["https://monkeytype.com/"],
+      "matches": ["https://monkeytype.com/*"],
       "js": ["./out/grab-info.js"],
       "run_at": "document_end"
     }

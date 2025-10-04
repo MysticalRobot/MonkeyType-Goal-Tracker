@@ -32,6 +32,7 @@
     "noPropertyAccessFromIndexSignature": false
   },
   "include": [
+    "./types.d.ts",
     "./background-script.ts",
     "./content-scripts/*",
     "./popup/app.ts"

@@ -7,65 +7,84 @@ function getIconURI(theme: Theme): string {
   const modifedIcon = icon
     .replace(mainColor, theme.mainColor)
     .replace(bgColor, theme.bgColor);
-  return `data:image/svg+xml;base64,${window.btoa(modifedIcon)}`;
+  return 'data:image/svg+xml;base64,' + window.btoa(modifedIcon);
+}
+async function updateIconMessageHandler(message: UpdateIconMessage,
+  sender: browser.runtime.MessageSender): Promise<MessageResponse> {
+  console.debug('recieved UpdateIconMessage');
+  const theme = message.theme;
+  const tab = sender.tab;
+  // this case probably will not happen 🤓
+  if (tab === undefined) {
+    return {
+      success: false,
+      message: 'UpdateIconMessage from closed tab ignored'
+    };
+  }
+  if (tab.id === undefined) {
+    return {
+      success: false,
+      message: 'failed to update icon, unable to get tab id'
+    };
+  }
+  const iconDataURI = getIconURI(theme);
+  const key: keyof BrowserStorage = 'themes';
+  try {
+    const container = await browser.storage.local.get(key);
+    const initializeThemes = Object.entries(container).length === 0;
+    const themes: Map<number, Theme> & BrowserStorage[keyof BrowserStorage]
+      = initializeThemes ? new Map<number, Theme>() : container.themes;
+    themes.set(tab.id, theme);
+    await browser.storage.local.set({ themes });
+    await browser.action.setIcon({ path: iconDataURI, tabId: tab.id });
+    return { success: true, message: 'icon updated' };
+  } catch (error) {
+    return { success: false, message: 'failed to update icon, ' + error };
+  }
 }
 
-function createUpdateIconRequestHandler(port: browser.runtime.Port,
-  sender: browser.runtime.MessageSender) {
-  return (message: object) => {
-    // wrapped the async function, which should not throw errors, to type check
-    (async () => {
-      const theme = message as Theme;
-      try {
-        // this case probably will not happen 🤓
-        if (sender.tab === undefined) {
-          console.debug('ignoring UpdateIconRequest from closed tab');
-          return;
-        }
-        if (sender.tab.id === undefined) {
-          port.postMessage({
-            success: false, message: 'failed UpdateIconRequest, unable to get tabId'
-          } as UpdateIconResponse);
-          return;
-        }
-        console.debug('recieved UpdateIconRequest, updating icon');
-        await browser.storage.local.set({ theme });
-        const iconDataURI = getIconURI(theme);
-        await browser.storage.local.set({ iconDataURI });
-        await browser.action.setIcon({ path: iconDataURI, tabId: sender.tab.id });
-        port.postMessage({
-          success: true,
-          message: 'completed UpdateIconRequest, icon updated'
-        } as UpdateIconResponse);
-      } catch (error) {
-        port.postMessage({
-          success: false, message: `failed UpdateIconRequest, ${error}`
-        } as UpdateIconResponse);
-      }
-    })();
+async function saveTimeTypingMessageHandler(message: SaveTimeTypingMessage,
+  sender: browser.runtime.MessageSender): Promise<MessageResponse> {
+  console.debug('recieved saveTimeTypingMessage');
+  const key: keyof BrowserStorage = 'timeTypingTodaySeconds';
+  try {
+    const container = await browser.storage.local.get(key);
+    const initializeTimeTypingTodaySeconds = Object.entries(container).length === 0;
+    const timeTypingTodaySeconds: number & BrowserStorage[keyof BrowserStorage]
+      = (initializeTimeTypingTodaySeconds ? 0 : container.timeTypingTodaySeconds)
+      + message.timeTypingSeconds;
+    await browser.storage.local.set({ timeTypingTodaySeconds });
+    return {
+      success: true,
+      message: `saved ${message.timeTypingSeconds} timeTypingSeconds`
+    }
+  } catch (error) {
+    return {
+      success: false, message: 'failed to save timeTypingSeconds, ' + error
+    }
   }
 }
 
 // respond to requests from the content script to set the icon
-browser.runtime.onConnect.addListener((port) => {
-  const sender = port.sender;
-  if (sender === undefined) {
-    port.disconnect();
-    return;
+browser.runtime.onMessage.addListener((message: Message,
+  sender: browser.runtime.MessageSender): Promise<MessageResponse> => {
+  // TODO fill in with the other functions
+  switch (message.action) {
+    case 'updateIcon':
+      return updateIconMessageHandler(message as UpdateIconMessage, sender);
+    case 'saveTimeTyping':
+      return saveTimeTypingMessageHandler(message as SaveTimeTypingMessage, sender);
+    case 'updateStreaks':
+      break;
+    case 'checkLoginStatus':
+      break;
+    case 'loadInfo':
+      break;
   }
-  const updateIconRequestHandler = createUpdateIconRequestHandler(port, sender);
-  port.onMessage.addListener(updateIconRequestHandler);
-});
-
-// attempts to set the icon upon browser startup using a cached version of it
-browser.runtime.onStartup.addListener(async () => {
-  try {
-    const iconDataURIKey: keyof BrowserStorage = 'iconDataURI';
-    const iconDataURI = await browser.storage.local.get(iconDataURIKey);
-    await browser.action.setIcon(iconDataURI);
-  } catch (error) {
-    console.error(error);
-  }
+  return Promise.resolve({
+    success: false,
+    message: 'idk what happened; we gotta go bald',
+  });
 });
 
 // TODO create custom event(s) and listeners that fire and notify 

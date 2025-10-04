@@ -1,58 +1,68 @@
 declare interface Theme {
   mainColor: string;
   bgColor: string;
+  subColor: string;
+  textColor: string;
+  errorColor: string;
 }
 
-declare type UpdateIconRequest = Theme;
-declare interface UpdateIconResponse {
+declare type MessageResponse = {
   success: boolean;
   message: string;
+};
+
+declare interface Message {
+  action:
+  | 'updateIcon'
+  | 'saveTimeTyping'
+  | 'updateStreaks'
+  | 'checkLoginStatus'
+  | 'loadInfo';
 }
 
-declare interface UpdateStreaksRequest {
+declare type UpdateIconMessage = Message & {
+  action: 'updateIcon';
+  theme: Theme;
+}
+
+declare type SaveTimeTypingMessage = Message & {
+  action: 'saveTimeTyping';
+  timeTypingSeconds: number;
+}
+
+declare type UpdateStreaksMessage = Message & {
   action: 'updateStreaks';
+  timeTyping: number;
 }
 
-declare interface MonkeyTypeStatsRequest {
+declare type CheckLoginStatusMessage = Message & {
+  action: 'checkLoginStatus';
+}
+
+declare type LoadInfoMessage = Message & {
+  action: 'loadInfo';
+}
+
+declare type MonkeyTypeStatsRequest = {
   username: string;
   apeKey: string;
 }
-declare interface MonkeyTypeStatsResponse {
+
+declare type MonkeyTypeStatsResponse = {
   message: string;
-  data: [
-    {
-      acc: 50;
-      mode: "time";
-      mode2: "^\\d$";
-      quoteLength: 3;
-      timestamp: 0;
-      testDuration: 1;
-      consistency: 100;
-      keyConsistency: 100;
-      uid: "^a$";
-      restartCount: 0;
-      incompleteTestSeconds: 0;
-      afkDuration: 0;
-      tags: [
-        "^a$"
-      ];
-      bailedOut: true;
-      blindMode: true;
-      lazyMode: true;
-      funbox: [
-        58008
-      ];
-      language: "english";
-      difficulty: "normal";
-      numbers: true;
-      punctuation: true;
-      _id: "^a$";
-      isPb: true
-    }
-  ]
+  data: Array<{
+    timestamp: 0;
+    testDuration: 1;
+    afkDuration: 0;
+    incompleteTestSeconds: 0;
+    uid: "^a$";
+    _id: "^a$";
+    restartCount: 0;
+  }>;
 }
 
 declare type BrowserStorage = {
-  iconDataURI: string;
-  theme: Theme;
+  themes: Map<number, Theme>;
+  timeTypingTodaySeconds: number;
+  history: Array<[Date, number]>;
 }
